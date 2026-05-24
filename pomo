@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stardew Pomodoro</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #1a1a2e;
+    --panel-bg:  #3b2a1a;
+    --panel-mid: #4e3520;
+    --border:    #8b5e3c;
+    --border-lt: #c8924a;
+    --cream:     #f5e6c8;
+    --gold:      #f0c040;
+    --red:       #e05050;
+    --green:     #6abf69;
+    --blue:      #5b9bd5;
+    --muted:     #a07850;
+    --shadow:    #1a0d00;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Press Start 2P', monospace;
+    image-rendering: pixelated;
+  }
+
+  /* Pixel stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 20%, #fff8 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 60%, #fff6 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 10%, #fff9 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 80%, #fff5 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 35%, #fff8 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 75%, #fff6 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 90%, #fff7 0%, transparent 100%),
+      radial-gradient(1px 1px at 92% 55%, #fff5 0%, transparent 100%),
+      radial-gradient(2px 2px at 60% 40%, #fff4 0%, transparent 100%),
+      radial-gradient(2px 2px at 25% 50%, #fff3 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .widget {
+    position: relative;
+    z-index: 1;
+    width: 340px;
+  }
+
+  /* Outer wooden frame */
+  .frame {
+    background: var(--panel-bg);
+    border: 4px solid var(--border);
+    box-shadow:
+      inset 2px 2px 0 var(--border-lt),
+      inset -2px -2px 0 var(--shadow),
+      0 0 0 2px var(--shadow),
+      6px 6px 0 var(--shadow);
+    padding: 16px;
+    position: relative;
+  }
+
+  /* Corner pixel decorations */
+  .frame::before, .frame::after {
+    content: '✦';
+    position: absolute;
+    color: var(--gold);
+    font-size: 10px;
+    line-height: 1;
+  }
+  .frame::before { top: 6px; left: 8px; }
+  .frame::after  { top: 6px; right: 8px; }
+
+  .corner-bl, .corner-br {
+    position: absolute;
+    color: var(--gold);
+    font-size: 10px;
+    line-height: 1;
+  }
+  .corner-bl { bottom: 6px; left: 8px; }
+  .corner-br { bottom: 6px; right: 8px; }
+
+  /* Title banner */
+  .title-banner {
+    background: var(--panel-mid);
+    border: 2px solid var(--border);
+    box-shadow: inset 1px 1px 0 var(--border-lt), inset -1px -1px 0 var(--shadow);
+    text-align: center;
+    padding: 8px 4px;
+    margin-bottom: 14px;
+  }
+
+  .title-banner h1 {
+    font-size: 9px;
+    color: var(--gold);
+    text-shadow: 2px 2px 0 var(--shadow);
+    letter-spacing: 1px;
+  }
+
+  /* Mode tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+
+  .tab {
+    flex: 1;
+    background: var(--panel-mid);
+    border: 2px solid var(--border);
+    box-shadow: inset 1px 1px 0 var(--border-lt), inset -1px -1px 0 var(--shadow), 2px 2px 0 var(--shadow);
+    color: var(--muted);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    padding: 6px 2px;
+    cursor: pointer;
+    text-align: center;
+    transition: none;
+    letter-spacing: 0;
+    user-select: none;
+  }
+
+  .tab:hover { background: #5a3d25; color: var(--cream); }
+
+  .tab.active {
+    background: #6b2d2d;
+    border-color: var(--red);
+    color: var(--cream);
+    box-shadow: inset 1px 1px 0 #e07070, inset -1px -1px 0 var(--shadow), 2px 2px 0 var(--shadow);
+  }
+
+  .tab.active.break {
+    background: #2d4d2d;
+    border-color: var(--green);
+    box-shadow: inset 1px 1px 0 #90e070, inset -1px -1px 0 var(--shadow), 2px 2px 0 var(--shadow);
+  }
+
+  /* Clock display panel */
+  .clock-panel {
+    background: #0f0d08;
+    border: 3px solid var(--border);
+    box-shadow:
+      inset 3px 3px 6px rgba(0,0,0,0.8),
+      inset -1px -1px 0 #3a2a10,
+      2px 2px 0 var(--shadow);
+    padding: 20px 10px;
+    text-align: center;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Scanline effect */
+  .clock-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.15) 3px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+  }
+
+  .time-display {
+    font-size: 38px;
+    letter-spacing: 4px;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s;
+  }
+
+  .time-display.work-color { color: #ff9090; text-shadow: 0 0 10px #ff505088, 2px 2px 0 #220000; }
+  .time-display.break-color { color: #90ffb0; text-shadow: 0 0 10px #50ff8088, 2px 2px 0 #002200; }
+  .time-display.pulse { animation: timepulse 1s ease-in-out infinite; }
+
+  @keyframes timepulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: #0f0d08;
+    border: 2px solid var(--border);
+    box-shadow: inset 2px 2px 4px rgba(0,0,0,0.8), 2px 2px 0 var(--shadow);
+    height: 16px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 100%;
+    transition: width 1s linear, background 0.5s;
+    position: relative;
+  }
+
+  .progress-bar.work-bar {
+    background: linear-gradient(90deg, #8b1a1a, #e05050, #ff9090);
+    box-shadow: 0 0 8px #e0505088;
+  }
+
+  .progress-bar.break-bar {
+    background: linear-gradient(90deg, #1a4a1a, #4abf6a, #90ffb0);
+    box-shadow: 0 0 8px #50ff8088;
+  }
+
+  /* Pixel segments on progress */
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      rgba(0,0,0,0.3) 10px,
+      rgba(0,0,0,0.3) 12px
+    );
+  }
+
+  /* Session dots */
+  .session-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    background: #2a1a0a;
+    border: 2px solid var(--border);
+    box-shadow: 1px 1px 0 var(--shadow);
+    image-rendering: pixelated;
+  }
+
+  .dot.filled {
+    background: var(--red);
+    box-shadow: 0 0 4px #e0505088, 1px 1px 0 var(--shadow);
+    animation: dotglow 2s ease-in-out infinite;
+  }
+
+  @keyframes dotglow {
+    0%, 100% { box-shadow: 0 0 4px #e0505088, 1px 1px 0 var(--shadow); }
+    50% { box-shadow: 0 0 10px #e05050cc, 1px 1px 0 var(--shadow); }
+  }
+
+  /* Status label */
+  .status-label {
+    text-align: center;
+    font-size: 7px;
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+    min-height: 14px;
+    transition: color 0.3s;
+  }
+
+  .status-label.work { color: var(--red); }
+  .status-label.brk  { color: var(--green); }
+  .status-label.idle { color: var(--muted); }
+
+  /* Buttons row */
+  .buttons {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .btn {
+    flex: 1;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    padding: 8px 4px;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    background: var(--panel-mid);
+    color: var(--cream);
+    box-shadow: inset 1px 1px 0 var(--border-lt), inset -1px -1px 0 var(--shadow), 3px 3px 0 var(--shadow);
+    text-shadow: 1px 1px 0 var(--shadow);
+    user-select: none;
+    letter-spacing: 0;
+    transition: none;
+  }
+
+  .btn:hover { background: #5a3d25; }
+  .btn:active {
+    box-shadow: inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--border-lt), 1px 1px 0 var(--shadow);
+    transform: translate(2px, 2px);
+  }
+
+  .btn.start-btn { border-color: var(--gold); color: var(--gold); }
+  .btn.reset-btn { border-color: var(--muted); }
+
+  /* Tick toggle button */
+  .tick-row {
+    display: flex;
+  }
+
+  .btn.tick-btn {
+    width: 100%;
+    font-size: 6px;
+    letter-spacing: 0;
+  }
+
+  .btn.tick-btn.on { border-color: var(--green); color: var(--green); }
+  .btn.tick-btn.off { border-color: var(--muted); color: var(--muted); }
+
+  /* Time adjust controls inside clock panel */
+  .time-adjust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .adj-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    width: 26px; height: 26px;
+    background: #1e160a;
+    border: 2px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    box-shadow: inset 1px 1px 0 #3a2a10, 2px 2px 0 var(--shadow);
+    display: flex; align-items: center; justify-content: center;
+    user-select: none;
+    line-height: 1;
+    padding: 0;
+    padding-bottom: 2px;
+  }
+  .adj-btn:hover { color: var(--cream); background: #2e200e; }
+  .adj-btn:active { transform: translate(1px,1px); box-shadow: inset 1px 1px 0 var(--shadow); }
+
+  .adj-label {
+    font-size: 6px;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 0;
+  }
+
+  /* Completion animation overlay */
+  .done-flash {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,200,100,0.15);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 100;
+  }
+  .done-flash.flash { animation: flashanim 0.8s ease-out forwards; }
+
+  @keyframes flashanim {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Tomato/leaf decoration */
+  .deco {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 6px;
+    line-height: 1;
+    animation: derobob 3s ease-in-out infinite;
+  }
+
+  @keyframes derobob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+</style>
+</head>
+<body>
+<div class="done-flash" id="flash"></div>
+
+<div class="widget">
+  <div class="frame">
+    <span class="corner-bl">✦</span>
+    <span class="corner-br">✦</span>
+
+    <div class="title-banner">
+      <h1>🍅 POMODORO TIMER</h1>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" id="tab-work" onclick="setMode('work')">FOCUS</button>
+      <button class="tab" id="tab-short" onclick="setMode('short')">SHORT BREAK</button>
+      <button class="tab" id="tab-long" onclick="setMode('long')">LONG BREAK</button>
+    </div>
+
+    <div class="clock-panel">
+      <div class="time-display work-color" id="display">25:00</div>
+      <div class="time-adjust" id="timeAdjust">
+        <div>
+          <div class="adj-label">MIN</div>
+          <button class="adj-btn" onclick="adjustTime(-60)">−</button>
+        </div>
+        <div style="font-size:6px;color:var(--muted);padding-top:14px;">ADJ</div>
+        <div>
+          <div class="adj-label">MIN</div>
+          <button class="adj-btn" onclick="adjustTime(60)">+</button>
+        </div>
+        <div style="margin-left:6px">
+          <div class="adj-label">SEC</div>
+          <button class="adj-btn" onclick="adjustTime(-1)">−</button>
+        </div>
+        <div>
+          <div class="adj-label">SEC</div>
+          <button class="adj-btn" onclick="adjustTime(1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar work-bar" id="progress"></div>
+    </div>
+
+    <div class="session-dots" id="dots">
+      <div class="dot" id="d0"></div>
+      <div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+    </div>
+
+    <div class="status-label idle" id="status">PRESS START</div>
+
+    <div class="buttons">
+      <button class="btn start-btn" id="startBtn" onclick="toggleTimer()">▶ START</button>
+      <button class="btn reset-btn" onclick="resetTimer()">↺ RESET</button>
+    </div>
+
+    <div class="tick-row">
+      <button class="btn tick-btn off" id="tickBtn" onclick="toggleTick()">🔔 TICK: OFF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Audio context ───────────────────────────────────────────────
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playBell() {
+  const t = audioCtx.currentTime;
+  // Multiple bell partials for richness
+  const partials = [
+    { freq: 880,  gain: 0.5,  decay: 2.5 },
+    { freq: 1108, gain: 0.3,  decay: 1.8 },
+    { freq: 1760, gain: 0.2,  decay: 1.2 },
+    { freq: 2217, gain: 0.1,  decay: 0.8 },
+  ];
+
+  partials.forEach(({ freq, gain, decay }) => {
+    const osc = audioCtx.createOscillator();
+    const env = audioCtx.createGain();
+    osc.connect(env);
+    env.connect(audioCtx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.98, t + decay);
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(gain, t + 0.01);
+    env.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    osc.start(t);
+    osc.stop(t + decay);
+  });
+
+  // Strike transient
+  const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.05, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length) * 0.3;
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  const nf = audioCtx.createBiquadFilter();
+  nf.type = 'bandpass';
+  nf.frequency.value = 1000;
+  src.connect(nf);
+  nf.connect(audioCtx.destination);
+  src.start(t);
+}
+
+// Repeat bell 3 times
+function playBellSequence() {
+  playBell();
+  setTimeout(playBell, 800);
+  setTimeout(playBell, 1600);
+}
+
+// Ticking sound
+let tickNodes = null;
+let tickEnabled = false;
+let isRunning = false;
+
+function startTick() {
+  if (tickNodes || !tickEnabled || !isRunning) return;
+  const osc = audioCtx.createOscillator();
+  const env = audioCtx.createGain();
+  osc.connect(env);
+  env.connect(audioCtx.destination);
+  osc.type = 'square';
+  osc.frequency.value = 1200;
+  env.gain.value = 0;
+
+  // Schedule ticks
+  let nextTick = audioCtx.currentTime;
+  const interval = 1.0; // 1 second ticks
+  tickNodes = { osc, env, nextTick, interval, alive: true };
+
+  function scheduleTick() {
+    if (!tickNodes || !tickNodes.alive) return;
+    const now = audioCtx.currentTime;
+    while (tickNodes.nextTick < now + 0.2) {
+      const t = tickNodes.nextTick;
+      env.gain.setValueAtTime(0, t);
+      env.gain.linearRampToValueAtTime(0.04, t + 0.002);
+      env.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
+      tickNodes.nextTick += tickNodes.interval;
+    }
+    setTimeout(scheduleTick, 100);
+  }
+
+  osc.start();
+  scheduleTick();
+}
+
+function stopTick() {
+  if (!tickNodes) return;
+  tickNodes.alive = false;
+  try {
+    tickNodes.osc.stop();
+  } catch(e) {}
+  tickNodes = null;
+}
+
+// ─── Timer state ─────────────────────────────────────────────────
+const MODES = {
+  work:  { label: 'FOCUS TIME',       secs: 25 * 60, isBreak: false },
+  short: { label: 'SHORT BREAK ☕',   secs:  5 * 60, isBreak: true  },
+  long:  { label: 'LONG BREAK 🌿',    secs: 15 * 60, isBreak: true  },
+};
+
+let currentMode = 'work';
+let totalSecs = MODES.work.secs;
+let remainSecs = totalSecs;
+let interval = null;
+let sessionsCompleted = 0;
+
+const display  = document.getElementById('display');
+const progress = document.getElementById('progress');
+const status   = document.getElementById('status');
+const startBtn = document.getElementById('startBtn');
+const tickBtn  = document.getElementById('tickBtn');
+const flash    = document.getElementById('flash');
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+}
+
+function updateDisplay() {
+  display.textContent = formatTime(remainSecs);
+  const pct = remainSecs / totalSecs * 100;
+  progress.style.width = pct + '%';
+}
+
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('d' + i);
+    d.className = 'dot' + (i < sessionsCompleted ? ' filled' : '');
+  }
+}
+
+function setColorMode(isBreak) {
+  display.className = 'time-display ' + (isBreak ? 'break-color' : 'work-color');
+  progress.className = 'progress-bar ' + (isBreak ? 'break-bar' : 'work-bar');
+}
+
+function setMode(mode) {
+  resetTimer();
+  currentMode = mode;
+  totalSecs = MODES[mode].secs;
+  remainSecs = totalSecs;
+  updateDisplay();
+
+  const isBreak = MODES[mode].isBreak;
+  setColorMode(isBreak);
+
+  document.getElementById('tab-work').className  = 'tab' + (mode === 'work'  ? ' active' : '');
+  document.getElementById('tab-short').className = 'tab' + (mode === 'short' ? ' active break' : '');
+  document.getElementById('tab-long').className  = 'tab' + (mode === 'long'  ? ' active break' : '');
+
+  status.textContent = 'PRESS START';
+  status.className   = 'status-label idle';
+}
+
+function toggleTimer() {
+  // Unlock audio on first interaction
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  if (isRunning) {
+    pauseTimer();
+  } else {
+    startTimer();
+  }
+}
+
+function startTimer() {
+  isRunning = true;
+  showAdjust(false);
+  startBtn.textContent = '⏸ PAUSE';
+  const isBreak = MODES[currentMode].isBreak;
+  status.textContent = MODES[currentMode].label;
+  status.className   = 'status-label ' + (isBreak ? 'brk' : 'work');
+  display.classList.remove('pulse');
+
+  if (tickEnabled) startTick();
+
+  interval = setInterval(() => {
+    remainSecs--;
+    updateDisplay();
+    if (remainSecs <= 0) {
+      clearInterval(interval);
+      interval = null;
+      timerDone();
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  isRunning = false;
+  clearInterval(interval);
+  interval = null;
+  stopTick();
+  startBtn.textContent = '▶ RESUME';
+  display.classList.add('pulse');
+  status.textContent = 'PAUSED';
+  status.className   = 'status-label idle';
+}
+
+function resetTimer() {
+  isRunning = false;
+  clearInterval(interval);
+  interval = null;
+  stopTick();
+  remainSecs = totalSecs;
+  updateDisplay();
+  display.classList.remove('pulse');
+  showAdjust(true);
+  startBtn.textContent = '▶ START';
+  status.textContent = 'PRESS START';
+  status.className   = 'status-label idle';
+}
+
+function timerDone() {
+  isRunning = false;
+  stopTick();
+  playBellSequence();
+
+  // Flash screen
+  flash.className = 'done-flash flash';
+  setTimeout(() => flash.className = 'done-flash', 900);
+
+  display.classList.add('pulse');
+  showAdjust(true);
+  startBtn.textContent = '▶ START';
+
+  if (currentMode === 'work') {
+    sessionsCompleted = Math.min(4, sessionsCompleted + 1);
+    if (sessionsCompleted >= 4) sessionsCompleted = 0;
+    updateDots();
+    status.textContent = '🎉 WELL DONE!';
+    status.className   = 'status-label brk';
+  } else {
+    status.textContent = '✅ BREAK DONE!';
+    status.className   = 'status-label work';
+  }
+}
+
+function toggleTick() {
+  tickEnabled = !tickEnabled;
+  tickBtn.textContent = '🔔 TICK: ' + (tickEnabled ? 'ON' : 'OFF');
+  tickBtn.className = 'btn tick-btn ' + (tickEnabled ? 'on' : 'off');
+  if (tickEnabled && isRunning) {
+    startTick();
+  } else if (!tickEnabled) {
+    stopTick();
+  }
+}
+
+function adjustTime(deltaSecs) {
+  if (isRunning) return;
+  const newTotal = Math.max(60, totalSecs + deltaSecs); // min 1 minute
+  totalSecs = newTotal;
+  remainSecs = newTotal;
+  // Also update MODES so reset works correctly
+  MODES[currentMode].secs = newTotal;
+  updateDisplay();
+}
+
+function showAdjust(show) {
+  document.getElementById('timeAdjust').style.display = show ? 'flex' : 'none';
+}
+
+// Init
+updateDisplay();
+updateDots();
+showAdjust(true);
+</script>
+</body>
+</html>
