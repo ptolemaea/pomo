@@ -24,7 +24,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    /* REMOVED background color – fully transparent/clean */
     background: transparent;
     display: flex;
     align-items: center;
@@ -34,24 +33,22 @@
     image-rendering: pixelated;
   }
 
-  /* ⭐ NO starry background layer – completely removed to get rid of background color */
-  
   .widget {
     position: relative;
     z-index: 1;
-    width: 340px;
+    width: 320px;           /* Smaller width */
   }
 
   /* Outer wooden frame */
   .frame {
     background: var(--panel-bg);
-    border: 4px solid var(--border);
+    border: 3px solid var(--border);
     box-shadow:
-      inset 2px 2px 0 var(--border-lt),
-      inset -2px -2px 0 var(--shadow),
+      inset 1px 1px 0 var(--border-lt),
+      inset -1px -1px 0 var(--shadow),
       0 0 0 2px var(--shadow),
-      6px 6px 0 var(--shadow);
-    padding: 16px;
+      4px 4px 0 var(--shadow);
+    padding: 8px 10px;      /* Tighter padding */
     position: relative;
   }
 
@@ -60,20 +57,20 @@
     content: '✦';
     position: absolute;
     color: var(--gold);
-    font-size: 10px;
+    font-size: 8px;
     line-height: 1;
   }
-  .frame::before { top: 6px; left: 8px; }
-  .frame::after  { top: 6px; right: 8px; }
+  .frame::before { top: 3px; left: 6px; }
+  .frame::after  { top: 3px; right: 6px; }
 
   .corner-bl, .corner-br {
     position: absolute;
     color: var(--gold);
-    font-size: 10px;
+    font-size: 8px;
     line-height: 1;
   }
-  .corner-bl { bottom: 6px; left: 8px; }
-  .corner-br { bottom: 6px; right: 8px; }
+  .corner-bl { bottom: 3px; left: 6px; }
+  .corner-br { bottom: 3px; right: 6px; }
 
   /* Title banner */
   .title-banner {
@@ -81,14 +78,14 @@
     border: 2px solid var(--border);
     box-shadow: inset 1px 1px 0 var(--border-lt), inset -1px -1px 0 var(--shadow);
     text-align: center;
-    padding: 8px 4px;
-    margin-bottom: 14px;
+    padding: 4px 4px;
+    margin-bottom: 8px;
   }
 
   .title-banner h1 {
-    font-size: 9px;
+    font-size: 7px;
     color: var(--gold);
-    text-shadow: 2px 2px 0 var(--shadow);
+    text-shadow: 1px 1px 0 var(--shadow);
     letter-spacing: 1px;
   }
 
@@ -96,7 +93,7 @@
   .tabs {
     display: flex;
     gap: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .tab {
@@ -106,8 +103,8 @@
     box-shadow: inset 1px 1px 0 var(--border-lt), inset -1px -1px 0 var(--shadow), 2px 2px 0 var(--shadow);
     color: var(--muted);
     font-family: 'Press Start 2P', monospace;
-    font-size: 6px;
-    padding: 6px 2px;
+    font-size: 5px;
+    padding: 4px 2px;
     cursor: pointer;
     text-align: center;
     transition: none;
@@ -133,14 +130,14 @@
   /* Clock display panel */
   .clock-panel {
     background: #0f0d08;
-    border: 3px solid var(--border);
+    border: 2px solid var(--border);
     box-shadow:
-      inset 3px 3px 6px rgba(0,0,0,0.8),
+      inset 2px 2px 4px rgba(0,0,0,0.8),
       inset -1px -1px 0 #3a2a10,
       2px 2px 0 var(--shadow);
-    padding: 20px 10px;
+    padding: 8px 8px;
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     position: relative;
     overflow: hidden;
   }
@@ -161,16 +158,16 @@
   }
 
   .time-display {
-    font-size: 38px;
-    letter-spacing: 4px;
+    font-size: 28px;
+    letter-spacing: 2px;
     line-height: 1;
     position: relative;
     z-index: 1;
     transition: color 0.3s;
   }
 
-  .time-display.work-color { color: #ff9090; text-shadow: 0 0 10px #ff505088, 2px 2px 0 #220000; }
-  .time-display.break-color { color: #90ffb0; text-shadow: 0 0 10px #50ff8088, 2px 2px 0 #002200; }
+  .time-display.work-color { color: #ff9090; text-shadow: 0 0 6px #ff505088, 1px 1px 0 #220000; }
+  .time-display.break-color { color: #90ffb0; text-shadow: 0 0 6px #50ff8088, 1px 1px 0 #002200; }
   .time-display.pulse { animation: timepulse 1s ease-in-out infinite; }
 
   @keyframes timepulse {
@@ -181,10 +178,10 @@
   /* Progress bar */
   .progress-wrap {
     background: #0f0d08;
-    border: 2px solid var(--border);
-    box-shadow: inset 2px 2px 4px rgba(0,0,0,0.8), 2px 2px 0 var(--shadow);
-    height: 16px;
-    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8), 1px 1px 0 var(--shadow);
+    height: 8px;
+    margin-bottom: 8px;
     position: relative;
     overflow: hidden;
   }
@@ -198,12 +195,12 @@
 
   .progress-bar.work-bar {
     background: linear-gradient(90deg, #8b1a1a, #e05050, #ff9090);
-    box-shadow: 0 0 8px #e0505088;
+    box-shadow: 0 0 4px #e0505088;
   }
 
   .progress-bar.break-bar {
     background: linear-gradient(90deg, #1a4a1a, #4abf6a, #90ffb0);
-    box-shadow: 0 0 8px #50ff8088;
+    box-shadow: 0 0 4px #50ff8088;
   }
 
   /* Pixel segments on progress */
@@ -214,9 +211,9 @@
     background: repeating-linear-gradient(
       90deg,
       transparent,
-      transparent 10px,
-      rgba(0,0,0,0.3) 10px,
-      rgba(0,0,0,0.3) 12px
+      transparent 8px,
+      rgba(0,0,0,0.3) 8px,
+      rgba(0,0,0,0.3) 10px
     );
   }
 
@@ -224,36 +221,36 @@
   .session-dots {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin-bottom: 14px;
+    gap: 6px;
+    margin-bottom: 8px;
   }
 
   .dot {
-    width: 10px; height: 10px;
+    width: 7px; height: 7px;
     background: #2a1a0a;
-    border: 2px solid var(--border);
+    border: 1px solid var(--border);
     box-shadow: 1px 1px 0 var(--shadow);
     image-rendering: pixelated;
   }
 
   .dot.filled {
     background: var(--red);
-    box-shadow: 0 0 4px #e0505088, 1px 1px 0 var(--shadow);
+    box-shadow: 0 0 2px #e0505088, 1px 1px 0 var(--shadow);
     animation: dotglow 2s ease-in-out infinite;
   }
 
   @keyframes dotglow {
-    0%, 100% { box-shadow: 0 0 4px #e0505088, 1px 1px 0 var(--shadow); }
-    50% { box-shadow: 0 0 10px #e05050cc, 1px 1px 0 var(--shadow); }
+    0%, 100% { box-shadow: 0 0 2px #e0505088, 1px 1px 0 var(--shadow); }
+    50% { box-shadow: 0 0 6px #e05050cc, 1px 1px 0 var(--shadow); }
   }
 
   /* Status label */
   .status-label {
     text-align: center;
-    font-size: 7px;
-    margin-bottom: 14px;
-    letter-spacing: 1px;
-    min-height: 14px;
+    font-size: 6px;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    min-height: 12px;
     transition: color 0.3s;
   }
 
@@ -265,19 +262,19 @@
   .buttons {
     display: flex;
     gap: 6px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .btn {
     flex: 1;
     font-family: 'Press Start 2P', monospace;
-    font-size: 7px;
-    padding: 8px 4px;
+    font-size: 6px;
+    padding: 5px 3px;
     cursor: pointer;
     border: 2px solid var(--border);
     background: var(--panel-mid);
     color: var(--cream);
-    box-shadow: inset 1px 1px 0 var(--border-lt), inset -1px -1px 0 var(--shadow), 3px 3px 0 var(--shadow);
+    box-shadow: inset 1px 1px 0 var(--border-lt), inset -1px -1px 0 var(--shadow), 2px 2px 0 var(--shadow);
     text-shadow: 1px 1px 0 var(--shadow);
     user-select: none;
     letter-spacing: 0;
@@ -287,7 +284,7 @@
   .btn:hover { background: #5a3d25; }
   .btn:active {
     box-shadow: inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--border-lt), 1px 1px 0 var(--shadow);
-    transform: translate(2px, 2px);
+    transform: translate(1px, 1px);
   }
 
   .btn.start-btn { border-color: var(--gold); color: var(--gold); }
@@ -300,8 +297,9 @@
 
   .btn.tick-btn {
     width: 100%;
-    font-size: 6px;
+    font-size: 5px;
     letter-spacing: 0;
+    padding: 4px 3px;
   }
 
   .btn.tick-btn.on { border-color: var(--green); color: var(--green); }
@@ -312,21 +310,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 8px;
+    margin-top: 6px;
     position: relative;
     z-index: 2;
   }
 
   .adj-btn {
     font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    width: 26px; height: 26px;
+    font-size: 9px;
+    width: 20px; height: 20px;
     background: #1e160a;
-    border: 2px solid var(--border);
+    border: 1px solid var(--border);
     color: var(--muted);
     cursor: pointer;
-    box-shadow: inset 1px 1px 0 #3a2a10, 2px 2px 0 var(--shadow);
+    box-shadow: inset 1px 1px 0 #3a2a10, 1px 1px 0 var(--shadow);
     display: flex; align-items: center; justify-content: center;
     user-select: none;
     line-height: 1;
@@ -337,10 +335,11 @@
   .adj-btn:active { transform: translate(1px,1px); box-shadow: inset 1px 1px 0 var(--shadow); }
 
   .adj-label {
-    font-size: 6px;
+    font-size: 5px;
     color: var(--muted);
     text-align: center;
     letter-spacing: 0;
+    margin-bottom: 2px;
   }
 
   /* Completion animation overlay */
@@ -358,20 +357,6 @@
     0% { opacity: 1; }
     100% { opacity: 0; }
   }
-
-  /* Tomato/leaf decoration */
-  .deco {
-    text-align: center;
-    font-size: 18px;
-    margin-bottom: 6px;
-    line-height: 1;
-    animation: derobob 3s ease-in-out infinite;
-  }
-
-  @keyframes derobob {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-  }
 </style>
 </head>
 <body>
@@ -388,8 +373,8 @@
 
     <div class="tabs">
       <button class="tab active" id="tab-work" onclick="setMode('work')">FOCUS</button>
-      <button class="tab" id="tab-short" onclick="setMode('short')">SHORT BREAK</button>
-      <button class="tab" id="tab-long" onclick="setMode('long')">LONG BREAK</button>
+      <button class="tab" id="tab-short" onclick="setMode('short')">SHORT</button>
+      <button class="tab" id="tab-long" onclick="setMode('long')">LONG</button>
     </div>
 
     <div class="clock-panel">
@@ -399,12 +384,12 @@
           <div class="adj-label">MIN</div>
           <button class="adj-btn" onclick="adjustTime(-60)">−</button>
         </div>
-        <div style="font-size:6px;color:var(--muted);padding-top:14px;">ADJ</div>
+        <div style="font-size:5px;color:var(--muted);padding-top:4px;">ADJ</div>
         <div>
           <div class="adj-label">MIN</div>
           <button class="adj-btn" onclick="adjustTime(60)">+</button>
         </div>
-        <div style="margin-left:6px">
+        <div style="margin-left:2px">
           <div class="adj-label">SEC</div>
           <button class="adj-btn" onclick="adjustTime(-1)">−</button>
         </div>
@@ -445,7 +430,6 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playBell() {
   const t = audioCtx.currentTime;
-  // Multiple bell partials for richness
   const partials = [
     { freq: 880,  gain: 0.5,  decay: 2.5 },
     { freq: 1108, gain: 0.3,  decay: 1.8 },
@@ -468,7 +452,6 @@ function playBell() {
     osc.stop(t + decay);
   });
 
-  // Strike transient
   const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.05, audioCtx.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length) * 0.3;
@@ -482,14 +465,12 @@ function playBell() {
   src.start(t);
 }
 
-// Repeat bell 3 times
 function playBellSequence() {
   playBell();
   setTimeout(playBell, 800);
   setTimeout(playBell, 1600);
 }
 
-// Ticking sound
 let tickNodes = null;
 let tickEnabled = false;
 let isRunning = false;
@@ -504,9 +485,8 @@ function startTick() {
   osc.frequency.value = 1200;
   env.gain.value = 0;
 
-  // Schedule ticks
   let nextTick = audioCtx.currentTime;
-  const interval = 1.0; // 1 second ticks
+  const interval = 1.0;
   tickNodes = { osc, env, nextTick, interval, alive: true };
 
   function scheduleTick() {
@@ -521,7 +501,6 @@ function startTick() {
     }
     setTimeout(scheduleTick, 100);
   }
-
   osc.start();
   scheduleTick();
 }
@@ -529,9 +508,7 @@ function startTick() {
 function stopTick() {
   if (!tickNodes) return;
   tickNodes.alive = false;
-  try {
-    tickNodes.osc.stop();
-  } catch(e) {}
+  try { tickNodes.osc.stop(); } catch(e) {}
   tickNodes = null;
 }
 
@@ -598,14 +575,9 @@ function setMode(mode) {
 }
 
 function toggleTimer() {
-  // Unlock audio on first interaction
   if (audioCtx.state === 'suspended') audioCtx.resume();
-
-  if (isRunning) {
-    pauseTimer();
-  } else {
-    startTimer();
-  }
+  if (isRunning) pauseTimer();
+  else startTimer();
 }
 
 function startTimer() {
@@ -660,7 +632,6 @@ function timerDone() {
   stopTick();
   playBellSequence();
 
-  // Flash screen
   flash.className = 'done-flash flash';
   setTimeout(() => flash.className = 'done-flash', 900);
 
@@ -684,19 +655,15 @@ function toggleTick() {
   tickEnabled = !tickEnabled;
   tickBtn.textContent = '🔔 TICK: ' + (tickEnabled ? 'ON' : 'OFF');
   tickBtn.className = 'btn tick-btn ' + (tickEnabled ? 'on' : 'off');
-  if (tickEnabled && isRunning) {
-    startTick();
-  } else if (!tickEnabled) {
-    stopTick();
-  }
+  if (tickEnabled && isRunning) startTick();
+  else if (!tickEnabled) stopTick();
 }
 
 function adjustTime(deltaSecs) {
   if (isRunning) return;
-  const newTotal = Math.max(60, totalSecs + deltaSecs); // min 1 minute
+  const newTotal = Math.max(60, totalSecs + deltaSecs);
   totalSecs = newTotal;
   remainSecs = newTotal;
-  // Also update MODES so reset works correctly
   MODES[currentMode].secs = newTotal;
   updateDisplay();
 }
